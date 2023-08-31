@@ -1,6 +1,8 @@
-torch>=1.13.0
+torch>=1.9.0
 torch_geometric
-transformers>=4.28.1
+# transformers>=4.28.1
+git+https://github.com/huismiling/transformers.git@mlu-dev
+git+https://github.com/huismiling/accelerate.git@mlu-dev
 SentencePiece
 rdkit
 pandas
