@@ -189,7 +189,7 @@ def test_molcap_from_file(file, args, device):
     }
 
 def add_arguments(parser):
-    parser.add_argument("--device", type=str, default="cuda:0")
+    parser.add_argument("--device", type=str, default="mlu:0")
     parser.add_argument("--config_path", type=str, default="")
     parser.add_argument('--dataset', type=str, default='chebi-20')
     parser.add_argument("--dataset_path", type=str, default='../datasets/molcap/chebi-20')

@@ -111,7 +111,7 @@ def test_molqa(test_loader, model, args, device):
     }
 
 def add_arguments(parser):
-    parser.add_argument("--device", type=str, default="cuda:0")
+    parser.add_argument("--device", type=str, default="mlu:0")
     parser.add_argument("--config_path", type=str, default="")
     parser.add_argument('--dataset', type=str, default='chembl-qa')
     parser.add_argument("--dataset_path", type=str, default='./datasets/molqa/ChEMBL')

@@ -78,7 +78,7 @@ def val_drp(val_loader, model, args):
 
     logger.info("Validating...")
     for drug, cell, label in tqdm(val_loader):
-        torch.cuda.empty_cache()
+        torch.mlu.empty_cache()
         if isinstance(cell, list):
             drug, cell, label = drug.to(args.device), [feat.to(args.device) for feat in cell], label.to(args.device)
         else:
@@ -170,7 +170,7 @@ def main(args, config):
 
 def add_arguments(parser):
     parser.add_argument('--seed', type=int, default=42, help='seed')
-    parser.add_argument('--device', type=str, default='cuda:0', help='device')
+    parser.add_argument('--device', type=str, default='mlu:0', help='device')
     parser.add_argument('--task', type=str, default='regression', help='task type: classification or regression')
     parser.add_argument('--dataset', type=str, default='GDSC', help='dataset')
     parser.add_argument("--dataset_path", type=str, default='../datasets/drp/GDSC/', help='path to the dataset')

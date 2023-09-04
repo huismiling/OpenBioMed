@@ -215,7 +215,7 @@ def main(args, config):
             print("%s: %.4lf±%.4lf" % (key, results[key][0], results[key][1]))
 
 def add_arguments(parser):
-    parser.add_argument("--device", type=str, default="cuda:0")
+    parser.add_argument("--device", type=str, default="mlu:0")
     parser.add_argument("--mode", type=str, default="train")
     parser.add_argument("--config_path", type=str, default="")
     parser.add_argument('--dataset', type=str, default="Yamanishi08")

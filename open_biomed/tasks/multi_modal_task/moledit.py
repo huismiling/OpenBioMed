@@ -81,7 +81,7 @@ def stop_gradient(model):
         params.requires_grad = False
 
 def add_arguments(parser):
-    parser.add_argument("--device", type=str, default="cuda:0")
+    parser.add_argument("--device", type=str, default="mlu:0")
     parser.add_argument("--technique", type=str, default="z_optimize")
     parser.add_argument("--encoder_config_path", type=str, default="")
     parser.add_argument("--init_encoder_checkpoint", type=str, default="None")

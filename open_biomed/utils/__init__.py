@@ -248,16 +248,16 @@ def cycle(iterable):
         for x in iterable:
             yield x
 
-def seed_all(seed_value, cuda_deterministic=False):
+def seed_all(seed_value, mlu_deterministic=False):
     random.seed(seed_value)
     os.environ['PYTHONHASHSEED'] = str(seed_value)
     np.random.seed(seed_value)
     torch.manual_seed(seed_value)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(seed_value)
-        torch.cuda.manual_seed_all(seed_value)
+    if torch.mlu.is_available():
+        torch.mlu.manual_seed(seed_value)
+        torch.mlu.manual_seed_all(seed_value)
     # Speed-reproducibility tradeoff https://pytorch.org/docs/stable/notes/randomness.html
-    if cuda_deterministic:  # slower, more reproducible
+    if mlu_deterministic:  # slower, more reproducible
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
     else:  # faster, less reproducible

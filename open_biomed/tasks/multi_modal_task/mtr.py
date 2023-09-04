@@ -61,7 +61,7 @@ def contrastive_loss(logits_structure, logits_text, margin, device):
     # clear diagonals
     mask = torch.eye(scores.size(0)) > .5
     I = Variable(mask)
-    if torch.cuda.is_available():
+    if torch.mlu.is_available():
         I = I.to(device)
     cost_s2t = cost_s2t.masked_fill_(I, 0)
     cost_t2s = cost_t2s.masked_fill_(I, 0)
@@ -247,7 +247,7 @@ def main(args, config):
         print(result)
 
 def add_arguments(parser):
-    parser.add_argument("--device", type=str, default="cuda:0")
+    parser.add_argument("--device", type=str, default="mlu:0")
     parser.add_argument("--mode", type=str, default="zero_shot")
     parser.add_argument("--config_path", type=str, default="")
     parser.add_argument('--dataset', type=str, default='PCdes')

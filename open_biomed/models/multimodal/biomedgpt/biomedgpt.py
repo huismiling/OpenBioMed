@@ -24,7 +24,7 @@ class BioMedGPTBase(MolEncoder, ProteinEncoder, TextEncoder):
         enable_autocast = self.device != torch.device("cpu")
 
         if enable_autocast:
-            return torch.cuda.amp.autocast(dtype=dtype)
+            return torch.mlu.amp.autocast()
         else:
             return contextlib.nullcontext()
 

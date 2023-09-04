@@ -134,7 +134,7 @@ def main(args, config):
         logger.info(", ".join(["%s: %.4lf" % (k, v) for k, v in results.items()]))
 
 def add_arguments(parser):
-    parser.add_argument("--device", type=str, default="cuda:0")
+    parser.add_argument("--device", type=str, default="mlu:0")
     parser.add_argument("--mode", type=str, default="train")
     parser.add_argument("--config_path", type=str, default="")
     parser.add_argument('--dataset', type=str, default="SHS27k")

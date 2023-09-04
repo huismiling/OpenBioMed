@@ -880,7 +880,7 @@ class RobertaModel(RobertaPreTrainedModel):
         # if have graph input: concat the graph and smiles
         if graph_input is not None:
             padding_vocab_idx = 1
-            padding_embedding = self.embeddings.word_embeddings(torch.tensor(padding_vocab_idx).cuda())
+            padding_embedding = self.embeddings.word_embeddings(torch.tensor(padding_vocab_idx).mlu())
             if graph_attention_mask.shape[1] > graph_max_seq_size:
                 graph_attention_mask = graph_attention_mask[:, :graph_max_seq_size]
             graph_pad_emb = torch.zeros((embedding_output.shape[0], graph_attention_mask.shape[1], embedding_output.shape[2]), dtype=embedding_output.dtype, device=embedding_output.device)

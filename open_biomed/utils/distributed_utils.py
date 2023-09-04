@@ -40,7 +40,7 @@ def init_distributed_mode(args):
     args.world_size = int(os.environ['WORLD_SIZE'])
     args.device = int(os.environ['LOCAL_RANK'])
 
-    torch.cuda.set_device(args.device)
+    torch.mlu.set_device(args.device)
     args.dist_backend = 'nccl'
     print('| distributed init (rank {}): {}'.format(
         args.rank, args.dist_url), flush=True)

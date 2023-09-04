@@ -134,7 +134,7 @@ if __name__ == "__main__":
 
     config = json.load(open("./configs/encoders/multimodal/biomedgptv.json", "r"))
 
-    device = torch.device("cuda:0")
+    device = torch.device("mlu:0")
     config["network"]["device"] = device
     model = BioMedGPTV(config["network"])
     ckpt = torch.load("./ckpts/fusion_ckpts/biomedgpt_10b.pth")

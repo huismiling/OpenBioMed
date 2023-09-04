@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
-from torch.cuda.amp import autocast
+from torch.mlu.amp import autocast
 from torch.autograd.function import Function
 from torch.utils.checkpoint import get_device_states, set_device_states
 
@@ -39,14 +39,14 @@ class Deterministic(nn.Module):
         super().__init__()
         self.net = net
         self.cpu_state = None
-        self.cuda_in_fwd = None
+        self.mlu_in_fwd = None
         self.gpu_devices = None
         self.gpu_states = None
 
     def record_rng(self, *args):
         self.cpu_state = torch.get_rng_state()
-        if torch.cuda._initialized:
-            self.cuda_in_fwd = True
+        if torch.mlu._initialized:
+            self.mlu_in_fwd = True
             self.gpu_devices, self.gpu_states = get_device_states(*args)
 
     def forward(self, *args, record_rng = False, set_rng = False, **kwargs):
@@ -57,12 +57,12 @@ class Deterministic(nn.Module):
             return self.net(*args, **kwargs)
 
         rng_devices = []
-        if self.cuda_in_fwd:
+        if self.mlu_in_fwd:
             rng_devices = self.gpu_devices
 
         with torch.random.fork_rng(devices=rng_devices, enabled=True):
             torch.set_rng_state(self.cpu_state)
-            if self.cuda_in_fwd:
+            if self.mlu_in_fwd:
                 set_device_states(self.gpu_devices, self.gpu_states)
             return self.net(*args, **kwargs)
 
@@ -317,20 +317,20 @@ def linear_attention(q, k, v):
     return out
 
 # efficient causal linear attention, created by EPFL
-# TODO: rewrite EPFL's CUDA kernel to do mixed precision and remove half to float conversion and back
+# TODO: rewrite EPFL's mlu kernel to do mixed precision and remove half to float conversion and back
 def causal_linear_attention(q, k, v, eps = 1e-6):
     from fast_transformers.causal_product import CausalDotProduct
     autocast_enabled = torch.is_autocast_enabled()
-    is_half = isinstance(q, torch.cuda.HalfTensor)
+    is_half = isinstance(q, torch.mlu.HalfTensor)
     assert not is_half or APEX_AVAILABLE, 'half tensors can only be used if nvidia apex is available'
-    cuda_context = null_context if not autocast_enabled else partial(autocast, enabled = False)
+    mlu_context = null_context if not autocast_enabled else partial(autocast, enabled = False)
 
     causal_dot_product_fn = amp.float_function(CausalDotProduct.apply) if is_half else CausalDotProduct.apply
 
     k_cumsum = k.cumsum(dim=-2) + eps
     D_inv = 1. / torch.einsum('...nd,...nd->...n', q, k_cumsum.type_as(q))
 
-    with cuda_context():
+    with mlu_context():
         if autocast_enabled:
             q, k, v = map(lambda t: t.float(), (q, k, v))
 
@@ -339,9 +339,9 @@ def causal_linear_attention(q, k, v, eps = 1e-6):
     out = torch.einsum('...nd,...n->...nd', out, D_inv)
     return out
 
-# inefficient causal linear attention, without cuda code, for reader's reference
+# inefficient causal linear attention, without mlu code, for reader's reference
 # not being used
-def causal_linear_attention_noncuda(q, k, v, chunk_size = 128):
+def causal_linear_attention_nonmlu(q, k, v, chunk_size = 128):
     last_k_cumsum = 0
     last_context_cumsum = 0
     outs = []
@@ -386,11 +386,11 @@ class FastAttention(nn.Module):
         self.causal = causal
         if causal:
             try:
-                import fast_transformers.causal_product.causal_product_cuda
+                import fast_transformers.causal_product.causal_product_mlu
                 self.causal_linear_fn = partial(causal_linear_attention)
             except ImportError:
-                print('unable to import cuda code for auto-regressive Performer. will default to the memory inefficient non-cuda version')
-                self.causal_linear_fn = causal_linear_attention_noncuda
+                print('unable to import mlu code for auto-regressive Performer. will default to the memory inefficient non-mlu version')
+                self.causal_linear_fn = causal_linear_attention_nonmlu
 
     @torch.no_grad()
     def redraw_projection_matrix(self, device):

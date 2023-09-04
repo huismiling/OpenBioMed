@@ -22,7 +22,7 @@ from utils import DPCollator, roc_auc, EarlyStopping, AverageMeter, ToDevice
 from models.task_model.dp_model import DPModel, DeepEIK4DP
 
 def add_arguments(parser):
-    parser.add_argument("--device", type=str, default="cuda:0")
+    parser.add_argument("--device", type=str, default="mlu:0")
     parser.add_argument("--mode", type=str, default="train")
     parser.add_argument("--config_path", type=str, default="")
     parser.add_argument('--dataset', type=str, default='MoleculeNet')
@@ -283,6 +283,6 @@ if __name__ == "__main__":
     random.seed(args.seed)
     # np.random.seed(args.seed)
     torch.manual_seed(args.seed)
-    torch.cuda.manual_seed(args.seed)
+    torch.mlu.manual_seed(args.seed)
 
     main(args, config)

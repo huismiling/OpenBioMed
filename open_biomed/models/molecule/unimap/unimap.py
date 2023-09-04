@@ -365,7 +365,7 @@ if __name__ == "__main__":
     collator = MolCollator(config["data"]["mol"])
     model = UniMAP(roberta_config, config["network"]["gnn"], config["network"]["atom_vocab_size"])
     model.load_state_dict(torch.load("/share/project/task_3/PUBLIC/Shikun/train_1kw_gcn_3_8gpu_check_frag_final/pytorch_model.bin", map_location="cpu"), strict=False)
-    model = model.to("cuda:0")
+    model = model.to("mlu:0")
     model.eval()
     smi1 = "O=C(Nc1ccnc(NC(=O)C2CC2)c1)c1c(Cl)cccc1Cl"
     mol1 = featurizer(smi1)
